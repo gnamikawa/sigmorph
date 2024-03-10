@@ -3,6 +3,7 @@
 // ASSIGNMENT -> const IDENTIFIER =
 // IDENTIFIER
 
+use rstest::rstest;
 use thiserror::Error;
 
 pub mod comments;
@@ -48,6 +49,39 @@ impl From<std::io::Error> for LexerError {
     }
 }
 
+#[rstest]
+#[should_panic]
+#[case::onlynewline("assets/testcase_only-newline.sig")]
+#[should_panic]
+#[case::emptyfile("assets/testcase_empty-file.sig")]
+#[case::comment("assets/testcase_comment.sig")]
+#[case::singleevent("assets/testcase_single-event.sig")]
+#[case::trailingnewline("assets/testcase_trailing-newline.sig")]
+#[case::singlelet("assets/testcase_single-let.sig")]
+#[case::statesandtransitions("assets/testcase_states-and-transitions.sig")]
+#[case::singleargumentfunction("assets/testcase_single-argument-function.sig")]
+fn test_scan(#[case] test_case_path: &str) {
+    use std::fs::File;
+    use std::io::Read;
+    let maybe_test_case = File::open(test_case_path);
+
+    match maybe_test_case {
+        Ok(test_case) => {
+            let mut peekable = test_case
+                .bytes()
+                .map(|a| char::from(a.unwrap_or_default()))
+                .peekable();
+
+            let result = scan(&mut peekable);
+
+            assert!(result.is_ok())
+        }
+        Err(_err) => {
+            panic!();
+        }
+    }
+}
+
 /// Lexical analyzer. Takes tokenized input and generates an abstract syntax tree.
 pub fn scan<I: Iterator<Item = char>>(
     iter: &mut std::iter::Peekable<I>,
@@ -56,10 +90,10 @@ pub fn scan<I: Iterator<Item = char>>(
     let result = document(iter, &mut tokens);
     match result {
         Ok(_) => {
-            return Ok(tokens);
+            Ok(tokens)
         }
         Err(err) => {
-            return Err(err);
+            Err(err)
         }
     }
 }

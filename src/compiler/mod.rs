@@ -11,11 +11,11 @@ pub mod parser;
 pub enum CompilerError {
     #[error("The compiler has run into an issue while reading a file.")]
     IOError(#[from] std::io::Error),
-    #[error("The compiler has run into an issue while scanning.")]
+    #[error("The compiler has run into an issue while scanning the file for lexemes.")]
     LexerError,
 }
 
-pub fn compile(path: &str) -> Result<(), CompilerError> {
+pub fn compile(path: &str) -> Result<String, CompilerError> {
     let f = File::open(path)?;
     let mut peekable = f
         .bytes()
@@ -26,59 +26,12 @@ pub fn compile(path: &str) -> Result<(), CompilerError> {
     match result {
         Ok(ok_result) => {
             println!("{:?}", &ok_result);
-            Ok(())
+            // TODO: Replace the return value with the final compiled string.
+            unimplemented!()
         }
         Err(err) => {
             println!("Compilation failed: {}", &err);
             Err(CompilerError::LexerError)
         }
     }
-}
-
-#[test]
-fn compile_testcase_emptyfile() {
-    let out = compile("assets/testcase_only-newline.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_onlynewline() {
-    let out = compile("assets/testcase_only-newline.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_singleevent() {
-    let out = compile("assets/testcase_single-event.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_trailingnewline() {
-    let out = compile("assets/testcase_trailing-newline.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_singlelet() {
-    let out = compile("assets/testcase_single-let.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_singleargumentfunction() {
-    let out = compile("assets/testcase_single-argument-function.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_statesandtransitions() {
-    let out = compile("assets/testcase_states-and-transitions.sig");
-    assert!(out.is_ok())
-}
-
-#[test]
-fn compile_testcase_comment() {
-    let out = compile("assets/testcase_comment.sig");
-    assert!(out.is_ok())
 }
