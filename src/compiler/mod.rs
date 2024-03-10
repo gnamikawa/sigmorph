@@ -22,14 +22,15 @@ pub fn compile(path: &str) -> Result<(), CompilerError> {
         .map(|a| char::from(a.unwrap_or_default()))
         .peekable();
     let result = lexer::scan(&mut peekable);
+
     match result {
         Ok(ok_result) => {
-            println!("{:?}", ok_result);
-            return Ok(());
+            println!("{:?}", &ok_result);
+            Ok(())
         }
         Err(err) => {
-            println!("Compilation failed: {}", err);
-            return Err(CompilerError::LexerError);
+            println!("Compilation failed: {}", &err);
+            Err(CompilerError::LexerError)
         }
     }
 }
@@ -37,47 +38,47 @@ pub fn compile(path: &str) -> Result<(), CompilerError> {
 #[test]
 fn compile_testcase_emptyfile() {
     let out = compile("assets/testcase_only-newline.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_onlynewline() {
     let out = compile("assets/testcase_only-newline.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_singleevent() {
     let out = compile("assets/testcase_single-event.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_trailingnewline() {
     let out = compile("assets/testcase_trailing-newline.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_singlelet() {
     let out = compile("assets/testcase_single-let.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_singleargumentfunction() {
     let out = compile("assets/testcase_single-argument-function.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_statesandtransitions() {
     let out = compile("assets/testcase_states-and-transitions.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
 
 #[test]
 fn compile_testcase_comment() {
     let out = compile("assets/testcase_comment.sig");
-    assert!(!out.is_err())
+    assert!(out.is_ok())
 }
