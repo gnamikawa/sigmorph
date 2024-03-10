@@ -33,8 +33,8 @@ pub fn comment<I: Iterator<Item = char>>(
 #[case::not_a_comment("a")]
 #[should_panic]
 #[case::empty_string("")]
-fn scanner_fn(#[case] lexeme: &str) {
+fn test_comment(#[case] lexeme: &str) {
     let mut peekable = lexeme.chars().peekable();
     let result = comment(&mut peekable);
-    assert!(!result.is_err())
+    assert!(result.is_ok())
 }
