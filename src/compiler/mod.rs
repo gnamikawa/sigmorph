@@ -1,20 +1,18 @@
 use std::fs::File;
-use std::io::{Error, ErrorKind, Read};
+use std::io::Read;
+use thiserror::Error;
 
 use crate::compiler::lexer::LexerError;
 
 pub mod lexer;
 pub mod parser;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum CompilerError {
-    IO(ErrorKind),
+    #[error("The compiler has run into an issue while reading a file.")]
+    IOError(#[from] std::io::Error),
+    #[error("The compiler has run into an issue while scanning.")]
     LexerError,
-}
-impl From<Error> for CompilerError {
-    fn from(error: Error) -> Self {
-        CompilerError::IO(error.kind())
-    }
 }
 
 pub fn compile(path: &str) -> Result<(), CompilerError> {
@@ -30,11 +28,7 @@ pub fn compile(path: &str) -> Result<(), CompilerError> {
             return Ok(());
         }
         Err(err) => {
-            let message = match err {
-                LexerError::IO(io_err) => format!("{:?}", io_err),
-                compiler_err => format!("{:?}", compiler_err),
-            };
-            println!("Compilation failed: {:?}", message);
+            println!("Compilation failed: {}", err);
             return Err(CompilerError::LexerError);
         }
     }

@@ -3,6 +3,8 @@
 // ASSIGNMENT -> const IDENTIFIER =
 // IDENTIFIER
 
+use thiserror::Error;
+
 pub mod comments;
 
 pub type Lexeme = String;
@@ -29,11 +31,15 @@ pub struct Token {
     token_type: Option<TokenType>,
     metadata: TokenMetadata,
 }
-
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum LexerError {
+    #[error("IO error")]
     IO(std::io::ErrorKind),
+    #[error("Unexpected end of file")]
     UnexpectedEOF,
+    #[error("Unexpected lexeme [{0}]")]
+    UnexpectedLexeme(String),
+    #[error("Unexpected declaration")]
     UnexpectedDeclaration,
 }
 impl From<std::io::Error> for LexerError {
@@ -41,6 +47,7 @@ impl From<std::io::Error> for LexerError {
         LexerError::IO(error.kind())
     }
 }
+
 /// Lexical analyzer. Takes tokenized input and generates an abstract syntax tree.
 pub fn scan<I: Iterator<Item = char>>(
     iter: &mut std::iter::Peekable<I>,
@@ -57,6 +64,11 @@ pub fn scan<I: Iterator<Item = char>>(
     }
 }
 
+/// Consumes the lexeme from the iterator. Assigns a token if specified.
+///
+/// # Errors
+///
+/// This function will return an error if the expected lexeme could not be matched.
 fn expect<I: Iterator<Item = char>>(
     iter: &mut std::iter::Peekable<I>,
     lexeme: &str,
@@ -64,8 +76,7 @@ fn expect<I: Iterator<Item = char>>(
 ) -> Result<Token, LexerError> {
     for x in lexeme.chars() {
         if iter.next().unwrap_or_default() != x {
-            // return Err("Collection Error".to_string());
-            return Err(LexerError::UnexpectedEOF);
+            return Err(LexerError::UnexpectedLexeme(String::from("asdf")));
         }
     }
 
