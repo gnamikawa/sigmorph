@@ -53,7 +53,7 @@ pub fn scan<I: Iterator<Item = char>>(
     iter: &mut std::iter::Peekable<I>,
 ) -> Result<Vec<Token>, LexerError> {
     let mut tokens = Vec::new();
-    let result = start(iter, &mut tokens);
+    let result = document(iter, &mut tokens);
     match result {
         Ok(_) => {
             return Ok(tokens);
@@ -90,19 +90,25 @@ fn expect<I: Iterator<Item = char>>(
     });
 }
 
-fn start<I: Iterator<Item = char>>(
+/// The starting and ending of a document.
+fn document<I: Iterator<Item = char>>(
+    iter: &mut std::iter::Peekable<I>,
+    tokens: &mut Vec<Token>,
+) -> Result<(), LexerError> {
+    scope(iter, tokens)?;
+    return Ok(());
+}
+
+/// Matches any scoped assignments, declarations, types and etc that are limited to a scope.
+fn scope<I: Iterator<Item = char>>(
     iter: &mut std::iter::Peekable<I>,
     tokens: &mut Vec<Token>,
 ) -> Result<(), LexerError> {
     loop {
         match iter.peek() {
             Some(c) => match c {
-                w if w.is_whitespace() => {
+                _ | '/' => {
                     whitespace(iter)?;
-                    return Ok(());
-                }
-                _ => {
-                    declaration(iter, tokens)?;
                     return Ok(());
                 }
             },
@@ -121,11 +127,14 @@ fn whitespace<I: Iterator<Item = char>>(
                     iter.next();
                     whitespace(iter)?;
                 }
+                '/' => {
+                    comments::comment(iter)?;
+                }
                 _ => {
                     return Ok(());
                 }
             },
-            None => return Ok(()),
+            None => return Err(LexerError::UnexpectedEOF),
         }
     }
 }

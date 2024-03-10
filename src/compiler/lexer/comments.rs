@@ -3,7 +3,9 @@ use rstest::rstest;
 
 use crate::compiler::lexer::expect;
 
-fn comment<I: Iterator<Item = char>>(iter: &mut std::iter::Peekable<I>) -> Result<(), LexerError> {
+pub fn comment<I: Iterator<Item = char>>(
+    iter: &mut std::iter::Peekable<I>,
+) -> Result<(), LexerError> {
     expect(iter, "//", None)?;
     loop {
         match iter.peek() {
@@ -12,21 +14,6 @@ fn comment<I: Iterator<Item = char>>(iter: &mut std::iter::Peekable<I>) -> Resul
                 iter.next();
                 return Ok(());
             }
-        }
-    }
-}
-
-fn line<I: Iterator<Item = char>>(iter: &mut std::iter::Peekable<I>) -> Result<(), LexerError> {
-    loop {
-        match iter.peek() {
-            Some(c) => match c {
-                c if c.is_whitespace() => {}
-                '/' => {
-                    comment(iter)?;
-                }
-                _ => todo!(),
-            },
-            None => return Ok(()),
         }
     }
 }
