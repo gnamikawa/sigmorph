@@ -89,7 +89,7 @@ fn test_scan(#[case] test_case_path: &str) {
 
             assert!(result.is_ok())
         }
-        Err(_err) => {
+        Err(..) => {
             panic!();
         }
     }
